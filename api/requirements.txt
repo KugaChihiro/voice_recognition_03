@@ -1,0 +1,15 @@
+aiohttp
+azure-storage-blob
+fastapi
+imageio-ffmpeg
+gunicorn
+msal
+openai
+pydantic
+python-dotenv
+python-docx
+python-multipart
+requests
+starlette
+tiktoken
+uvicorn[standard]
