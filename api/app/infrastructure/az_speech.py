@@ -78,18 +78,12 @@ class AzSpeechClient:
     async def get_transcription_display(self, content_url: str) -> str:
         """文字起こしの表示用テキストを取得する"""
         content_data = await self._get(content_url)
+        speaker_data = content_data["combinedRecognizedPhrases"][0]["speaker"]
+        display_text_data = content_data["combinedRecognizedPhrases"][0]["display"] 
+	transcription_result = [f"Speaker {speaker_data}: {display_text_data}"]       
+ 	return "\n".join(transcription_result)
 
-   	if "recognizedPhrases" not in content_data:
-	    raise HTTPException(500, "recognizedPhrases が取得できませんでした")
-
-    	transcription_result = []
-    	for phrase in content_data["recognizedPhrases"]:
-        	speaker = phrase.get("speaker", "不明")  
-        	text = phrase.get("nBest", [{}])[0].get("display", "")  
-        	transcription_result.append(f"Speaker {speaker}: {text}")
-
-	return "\n".join(transcription_result)
-
+    
     async def _get(self, url: str) -> Dict[str, Any]:
         """GETリクエストを実行する"""
         return await self._make_request("GET", url)
