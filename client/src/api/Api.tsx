@@ -9,7 +9,8 @@ interface TranscriptionResponse {
 }
 
 // const apiUrl = "http://127.0.0.1:8000";
-const apiUrl = "https://ca-vr-dev-010.politecoast-4904dd91.eastasia.azurecontainerapps.io";
+// const apiUrl = "https://ca-vr-dev-010.politecoast-4904dd91.eastasia.azurecontainerapps.io";
+const apiUrl = "https://conappvr03.thankfulflower-d9ed11c0.eastasia.azurecontainerapps.io"
 
 const fetcher = async (url: string) => {
     const response = await axios.get(url);
