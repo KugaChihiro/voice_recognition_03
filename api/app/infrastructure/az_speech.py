@@ -80,8 +80,8 @@ class AzSpeechClient:
         content_data = await self._get(content_url)
         speaker_data = content_data["combinedRecognizedPhrases"][0]["speaker"]
         display_text_data = content_data["combinedRecognizedPhrases"][0]["display"] 
-	transcription_result = [f"Speaker {speaker_data}: {display_text_data}"]       
- 	return "\n".join(transcription_result)
+        transcription_result = [f"Speaker {speaker_data}: {display_text_data}"]       
+        return "\n".join(transcription_result)
 
     
     async def _get(self, url: str) -> Dict[str, Any]:

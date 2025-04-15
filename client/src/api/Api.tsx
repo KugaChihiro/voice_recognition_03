@@ -8,7 +8,7 @@ interface TranscriptionResponse {
     summarized_text?: string;
 }
 
-const apiUrl = "https://contappvr03.thankfulflower-d9ed11c0.eastasia.azurecontainerapps.io"
+const apiUrl = "https://conappvr03.thankfulflower-d9ed11c0.eastasia.azurecontainerapps.io"
 
 const fetcher = async (url: string) => {
     const response = await axios.get(url);
