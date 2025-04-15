@@ -1,6 +1,6 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List, Dict, Any
 
 @dataclass
 class MockResponse:
@@ -14,7 +14,7 @@ class MockAzSpeechResponse(MockResponse):
     content_url: str = "https://mock.content.url/transcript.json"
     display_text: str = "これはテスト用の文字起こしテキストです。"
     status: str = "Succeeded"
-    files_url: str = "https://mock.files.url"
+    file_url: str = "https://mock.files.url"
 
 @dataclass
 class MockAzBlobResponse(MockResponse):
@@ -36,8 +36,8 @@ class MockMsSharePointResponse(MockResponse):
     site_id: str = "mock-site-id"
     folder_id: str = "mock-folder-id"
     access_token: str = "mock-access-token"
-    sites_data: dict = None
-    folders_data: dict = None
+    sites_data: Dict[str, List[Dict[str, str]]] = None
+    folders_data: Dict[str, List[Dict[str, Any]]] = None
 
     def __post_init__(self):
         if self.sites_data is None:
@@ -74,20 +74,20 @@ class MockAzSpeechClient(BaseMockClient):
 
     def _setup_mock_methods(self) -> None:
         self.create_transcription_job = AsyncMock(return_value=self._response.job_id)
-        self.poll_transcription_status = AsyncMock(return_value=self._response.files_url)
+        self.poll_transcription_status = AsyncMock(return_value=self._response.file_url)
         self.get_transcription_result = AsyncMock(return_value=self._response.content_url)
         self.get_transcription_display = AsyncMock(return_value=self._response.display_text)
         self._get = AsyncMock(return_value={
             "status": self._response.status,
-            "links": {
-                "files": self._response.files_url
+            "link": {
+                "file": self._response.file_url
             },
-            "values": [{
-                "links": {
+            "value": [{
+                "link": {
                     "contentUrl": self._response.content_url
                 }
             }],
-            "combinedRecognizedPhrases": [{
+            "combinedRecognizedPhrase": [{
                 "display": self._response.display_text
             }]
         })
@@ -114,7 +114,6 @@ class MockAzOpenAIClient(BaseMockClient):
 
     def _setup_mock_methods(self) -> None:
         self.get_summary = AsyncMock(return_value=self._response.summary)
-        self.summarize_text = AsyncMock(return_value=self._response.summary)
         self.count_tokens = AsyncMock(return_value=self._response.tokens)
         self.get_available_models = AsyncMock(return_value=["gpt-4", "gpt-3.5-turbo"])
         self.validate_api_key = AsyncMock(return_value=True)
@@ -125,24 +124,24 @@ class MockMsSharePointClient(BaseMockClient):
         super().__init__(response or MockMsSharePointResponse())
 
     def _setup_mock_methods(self) -> None:
-        self._get_access_token = AsyncMock()
-        self.graph_api_get = AsyncMock(return_value=type(
+        self._get_access_token = Mock()
+        self.graph_api_get = Mock(return_value=type(
             "Response", (), {
-                "json": lambda: self._response.sites_data if "sites" in self._get_current_mock_call_args() 
+                "json": lambda: self._response.sites_data if "site" in self._get_current_mock_call_args() 
                 else self._response.folders_data
             }
         ))
-        self.graph_api_put = AsyncMock(return_value=type(
+        self.graph_api_put = Mock(return_value=type(
             "Response", (), {"status_code": 200}
         ))
-        self.get_sites = AsyncMock(return_value=self._response.sites_data)
-        self.get_site_id = AsyncMock(return_value=self._response.site_id)
-        self.get_folders = AsyncMock(return_value=self._response.folders_data)
-        self.get_folder_id = AsyncMock(return_value=self._response.folder_id)
-        self.get_folder = AsyncMock(return_value=self._response.folders_data["value"][0])
-        self.get_folder_id_from_tree = AsyncMock(return_value=self._response.folder_id)
-        self.get_subfolders = AsyncMock(return_value=self._response.folders_data)
-        self.upload_file = AsyncMock()
+        self.get_sites = Mock(return_value=self._response.sites_data)
+        self.get_site_id = Mock(return_value=self._response.site_id)
+        self.get_folders = Mock(return_value=self._response.folders_data)
+        self.get_folder_id = Mock(return_value=self._response.folder_id)
+        self.get_folder = Mock(return_value=self._response.folders_data["value"][0])
+        self.get_folder_id_from_tree = Mock(return_value=self._response.folder_id)
+        self.get_subfolders = Mock(return_value=self._response.folders_data)
+        self.upload_file = Mock()
 
     def _get_current_mock_call_args(self):
         """現在のモックコールの引数を取得するヘルパーメソッド"""

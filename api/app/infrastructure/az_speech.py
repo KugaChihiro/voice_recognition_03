@@ -72,8 +72,8 @@ class AzSpeechClient:
 
     async def get_transcription_result(self, file_url: str) -> str:
         """文字起こし結果のURLを取得する"""
-        files_data = await self._get(file_url)
-        return files_data["values"][0]["links"]["contentUrl"]
+        file_data = await self._get(file_url)
+        return file_data["values"][0]["links"]["contentUrl"]
 
     async def get_transcription_display(self, content_url: str) -> str:
         """文字起こしの表示用テキストを取得する"""
@@ -83,7 +83,6 @@ class AzSpeechClient:
         transcription_result = [f"Speaker {speaker_data}: {display_text_data}"]       
         return "\n".join(transcription_result)
 
-    
     async def _get(self, url: str) -> Dict[str, Any]:
         """GETリクエストを実行する"""
         return await self._make_request("GET", url)
