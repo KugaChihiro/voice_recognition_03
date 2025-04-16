@@ -1,6 +1,10 @@
 {
     "routes": [
       {
+        "route": "/manifest.json",
+        "allowedRoles": ["anonymous"]
+      },
+      {
         "route": "/*",
         "allowedRoles": [ "authenticated" ]
       }
