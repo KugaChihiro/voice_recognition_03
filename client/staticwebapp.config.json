@@ -1,10 +1,15 @@
 {
     "routes": [
       {
+        "route": "/manifest.json",
+        "allowedRoles": ["anonymous"]
+      },
+      {
         "route": "/*",
         "allowedRoles": [ "authenticated" ]
       }
     ],
+    
     "responseOverrides": {
       "401": {
         "statusCode": 302,
