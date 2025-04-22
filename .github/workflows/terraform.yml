@@ -3,11 +3,11 @@ name: Deploy to Azure Static Web App created by Terraform
 on:
   push:
     branches:
-      - main
+      - past
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
-      - main
+      - past
 
 jobs:
   build_and_deploy:
