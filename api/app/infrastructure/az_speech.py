@@ -1,5 +1,7 @@
 import asyncio
 import aiohttp
+import re
+from collections import defaultdict
 from fastapi import HTTPException
 from typing import Dict, Any
 
@@ -75,13 +77,27 @@ class AzSpeechClient:
         file_data = await self._get(file_url)
         return file_data["values"][0]["links"]["contentUrl"]
 
-    async def get_transcription_display(self, content_url: str) -> str:
-        """文字起こしの表示用テキストを取得する"""
-        content_data = await self._get(content_url)
-        speaker_data = content_data["combinedRecognizedPhrases"][0]["speaker"]
-        display_text_data = content_data["combinedRecognizedPhrases"][0]["display"] 
-        transcription_result = [f"Speaker {speaker_data}: {display_text_data}"]       
-        return "\n".join(transcription_result)
+    async def fetch_transcription_display(self, content_url: str) -> str:
+        async with self.session.get(content_url) as response:
+            if response.status != 200:
+                raise HTTPException(
+                    status_code=response.status,
+                    detail=f"contentUrl の取得に失敗しました: {await response.text()}",
+                )
+            content_data = await response.json()
+            transcription_result = []
+            speaker_blocks = defaultdict(list)
+            for phrase in content_data["recognizedPhrases"]:
+                speaker = phrase.get("speaker", "不明")                
+                nbest = phrase.get("nBest", [])
+                display_text = nbest[0].get("display", "") if nbest else ""  
+                sentences = re.split(r'(?<=[。！？])', display_text)
+                sentences = [s.strip() for s in sentences if s.strip()]
+                speaker_blocks[speaker].extend(sentences)  
+            for speaker, sentences in speaker_blocks.items():
+                block = f"[speaker {speaker}]\n" + "\n".join(sentences)
+                transcription_result.append(block)
+            return "\n\n".join(transcription_result)
 
     async def _get(self, url: str) -> Dict[str, Any]:
         """GETリクエストを実行する"""

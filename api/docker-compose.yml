@@ -3,9 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: conregivr03.azurecr.io/api:latest
-    env_file:
-      - .env
+    image: conregivr03test.azurecr.io/api:latest
     ports:
       - "8000:8000"
     command: >
