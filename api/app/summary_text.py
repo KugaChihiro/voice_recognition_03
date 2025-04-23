@@ -10,7 +10,7 @@ class AzOpenAIClient:
         self,
         az_openai_key: str,
         az_openai_endpoint: str,
-        api_version: str = "2024-02-01",
+        api_version: str = "2025-01-01-preview",
         max_concurrent_requests: int = 10,
     ):
         """

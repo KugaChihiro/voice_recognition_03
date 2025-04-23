@@ -35,10 +35,7 @@ load_dotenv()
 # 環境変数の取得
 AZ_SPEECH_KEY = os.getenv("AZ_SPEECH_KEY")
 AZ_SPEECH_ENDPOINT = os.getenv("AZ_SPEECH_ENDPOINT")
-AZ_OPENAI_KEY = os.getenv("AZ_OPENAI_KEY")
-AZ_OPENAI_ENDPOINT = os.getenv("AZ_OPENAI_ENDPOINT")
 AZ_BLOB_CONNECTION = os.getenv("AZ_BLOB_CONNECTION")
-AZ_CONTAINER_NAME = "container-vr-dev"
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 TENANT_ID = os.getenv("TENANT_ID")

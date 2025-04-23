@@ -1,5 +1,7 @@
 import asyncio
 import aiohttp
+import re
+from collections import defaultdict
 from fastapi import HTTPException
 
 class AzTranscriptionClient:
@@ -80,7 +82,30 @@ class AzTranscriptionClient:
                     detail=f"contentUrl の取得に失敗しました: {await response.text()}",
                 )
             content_data = await response.json()
-            return content_data["combinedRecognizedPhrases"][0]["display"]
+            transcription_result = []
+            speaker_blocks = defaultdict(list)
+            previous_speaker = None
+            times = 1
+
+            for i, phrase in enumerate(content_data["recognizedPhrases"]):
+                speaker = phrase.get("speaker", "不明")                
+                nbest = phrase.get("nBest", [])
+                display_text = nbest[0].get("display", "") if nbest else ""  
+                sentences = re.split(r'(?<=[。！？])', display_text)
+                sentences = [s.strip() for s in sentences if s.strip()]
+                if speaker == previous_speaker:
+                    speaker_blocks[f"{speaker}-{times}"].extend(sentences)
+                    if i == len(content_data["recognizedPhrases"]) - 1:
+                        transcription_result.append(f"[speaker {speaker}]\n" + "\n".join(speaker_blocks[f"{speaker}-{times}"]))         
+                else:
+                    if previous_speaker is not None:
+                        transcription_result.append(f"[speaker {previous_speaker}]\n" + "\n".join(speaker_blocks[f"{previous_speaker}-{times}"]))
+                    times += 1
+                    speaker_blocks[f"{speaker}-{times}"] = sentences 
+                    previous_speaker = speaker
+                    if i == len(content_data["recognizedPhrases"]) - 1:
+                        transcription_result.append(f"[speaker {speaker}]\n" + "\n".join(speaker_blocks[f"{speaker}-{times}"]))            
+            return "\n\n".join(transcription_result)
 
     async def transcribe_audio(self, blob_url: str) -> str:
         if self.session.closed:
