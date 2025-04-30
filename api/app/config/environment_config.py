@@ -16,7 +16,7 @@ class EnvironmentConfig:
     def _load_environment_variables(self):
         for var in self.REQUIRED_VARS:
             setattr(self, var, os.getenv(var))
-        self.AZ_CONTAINER_NAME = "conappvr03-test"
+        self.AZ_CONTAINER_NAME = "stcvr03"
 
     def _validate_environment_variables(self):
         missing = [var for var in self.REQUIRED_VARS if not getattr(self, var)]
